@@ -5,7 +5,8 @@ require 'sqlite3'
 
 
 def init_db 
-	@db = SQLite3::Database.new 'leprosorium.db'
+	
+  @db = SQLite3::Database.new 'leprosorium.db'
 
 	@db.results_as_hash = true
 
@@ -29,7 +30,8 @@ configure do
 end
 
 get '/' do
-	erb "Hello! <a href=\"https://github.com/bootstrap-ruby/sinatra-bootstrap\">Original</a> pattern has been modified for <a href=\"http://rubyschool.us/\">Ruby School</a>"			
+  result = @db.execute 'select * from Posts order by id desc'
+	erb :index
 end
 
 get '/new' do
@@ -39,12 +41,16 @@ end
 post '/new' do
   content = params[:content]
 
-  erb "You typed #{content}"
+  
   if content.length <= 0 
   	
-  	@error ='Type text'
+  	@error = 'Type text'
 
   	return erb :new
 
   end
+
+  @db.execute 'insert into Posts (content, created_date) values (?,datetime())', [content]
+
+  erb "You typed: #{content}"
 end
